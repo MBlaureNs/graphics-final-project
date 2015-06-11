@@ -16,10 +16,49 @@ def add_polygon_p(points, p0, p1, p2):
                 p2[0], p2[1], p2[2])
 
 def draw_polygons( points, screen, color ):
+    def sortaequal(a,b,tol):
+        return not abs(a-b)<tol
+    def scanlines(p0,p1,p2):
+        pts = sorted( (p0,p1,p2), key=lambda pt: pt[1])
+        top = pts[0]; mid = pts[1]; bot = pts[2]
+
+        yi = top[1]
+        xi0 = top[0]
+        xi1 = top[0]
+
+        #YO
+        #take into account when top/mid or mid/bot are same y coordinate
+        #also, the edge case for drawing torus polygons appears to have
+        #    vertices drawn in the wrong order
+
+        dx0  = (bot[0]-top[0])/(bot[1]-top[1]) \
+               if sortaequal(bot[1],top[1],0.00001) else 1
+        dx1m = (mid[0]-top[0])/(mid[1]-top[1]) \
+               if sortaequal(mid[1],top[1],0.00001) else 1
+        dx1b = (bot[0]-mid[0])/(bot[1]-mid[1]) \
+               if sortaequal(bot[1],mid[1],0.00001) else 1
+
+        while yi < mid[1]:
+            debug = False
+            if abs(yi-mid[1])<0.1: debug = True
+            xi0 += dx0
+            xi1 += dx1m
+            yi  += 1
+            print mid[1]
+            print xi0,yi,"!!",xi1,yi
+            print "drawing"
+            draw_line(screen, xi0,yi, xi1,yi, color)
+        while yi < bot[1]:
+            xi0 += dx0
+            xi1 += dx1b
+            yi  += 1
+            draw_line(screen, xi0,yi, xi1,yi, color)
+
     def draw_polygon(p0,p1,p2):
         draw_line(screen, p0[0], p0[1], p1[0], p1[1], color)
         draw_line(screen, p1[0], p1[1], p2[0], p2[1], color)
         draw_line(screen, p2[0], p2[1], p0[0], p0[1], color)
+        scanlines(p0,p1,p2)
 
     view_vect = [0, 0, -1]
 
@@ -35,7 +74,8 @@ def draw_polygons( points, screen, color ):
                                         
         if dot_prod(surf_norm, view_vect) < 0:
             draw_polygon(points[p], points[p+1], points[p+2])
-        p+= 3
+        p+=3
+        
 
 def add_prism(points,x,y,z,w,h,d):
     def add_f(x0,y0,z0,x1,y1,z1,x2,y2,z2,x3,y3,z3):
