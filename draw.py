@@ -2,12 +2,15 @@ from display import *
 from matrix import *
 from vector import *
 import math
+z=[][]
 
 
 def add_polygon( points, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point( points, x0, y0, z0 )
     add_point( points, x1, y1, z1 )
     add_point( points, x2, y2, z2 )
+    if (z[x0][y0] < z0):
+        z[x0][y0] = z0
     
 def add_polygon_p(points, p0, p1, p2):
     add_polygon(points, 
