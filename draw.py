@@ -14,6 +14,7 @@ def add_polygon_p(points, p0, p1, p2):
                 p0[0], p0[1], p0[2],
                 p1[0], p1[1], p1[2],
                 p2[0], p2[1], p2[2])
+    #add to z-buffer here???
 
 def draw_polygons( points, screen, color ):
     def sortaequal(a,b,tol):
@@ -30,7 +31,6 @@ def draw_polygons( points, screen, color ):
         #take into account when top/mid or mid/bot are same y coordinate
         #also, the edge case for drawing torus polygons appears to have
         #    vertices drawn in the wrong order
-
         dx0  = (bot[0]-top[0])/(bot[1]-top[1]) \
                if sortaequal(bot[1],top[1],0.00001) else 1
         dx1m = (mid[0]-top[0])/(mid[1]-top[1]) \
@@ -71,7 +71,8 @@ def draw_polygons( points, screen, color ):
         p1 = points[p+1]
         p2 = points[p+2]
         surf_norm = cross_prod(vect_minus(p1,p0),vect_minus(p2,p0))
-                                        
+
+        #add z-buffer check here????
         if dot_prod(surf_norm, view_vect) < 0:
             draw_polygon(points[p], points[p+1], points[p+2])
         p+=3
