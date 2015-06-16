@@ -39,7 +39,36 @@ def draw_polygons(points, screen, color):
     def sortaequal(a,b,tol):
         return abs(a-b)<tol
     def scanlines(p0,p1,p2):
+        #colortmp = [100,100,100]
+        #light point stuff
+        #r,g,b, (intensities) x,y,z
+        light = [100, 100, 100, 50, 50, 50]
+        center = [(p0[0] + p1[0] + p2[0])/3, (p0[1] + p1[1] + p2[1])/3, (p0[2] + p1[2] + p2[2])/3]
+        vector_l = [center[0] - light[3], center[1] - light[4], center[2] - light[5]]
+        #end of light point stuff
+
+        #note: k values are object specific (or at least, they're supposed to be)
+        ka = [0.5,0.2,0.6]
+        kd = [0.6,0.3,0.7]
+        ks = [0.55, 0.25, 0.65]
+        sn = 15
+        #sn is the specular refleciton exponent, also object specific
+
+        norm_x_vect = cross_prod(surf_norm, vector_l)
+        specular_r_vector = vect_minus(scalar_prod(2, cross_prod(surf_norm, norm_x_vect)), vector_l)
+        
+        ia = [0,204,204]
+        colortmp = []
+        
+        for i in range(3):
+            ambient = ka[i] * ia[i]
+            ambient = (ka[i] * ia[i])
+            diffuse = (kd[i] * (dot_prod(surf_norm, vector_l) * light[i]))
+            specular = ks[i] * (dot_prod(specular_r_vector, vect_minus([0,0,-1],center))) ** sn
+            colortmp.append(int(round(ambient)))
+
         colortmp = random.sample(xrange(255),3)
+    
         pts = sorted( (p0,p1,p2), key=lambda pt: pt[1])
         top = pts[0]; mid = pts[1]; bot = pts[2]
 

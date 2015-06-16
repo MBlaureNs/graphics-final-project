@@ -8,3 +8,6 @@ def dot_prod(a,b):
 
 def vect_minus(a,b):
     return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]
+
+def scalar_prod(k,a):
+    return [k*a[0], k*a[1], k*a[2]]
