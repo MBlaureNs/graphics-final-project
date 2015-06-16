@@ -76,6 +76,8 @@ from draw import *
 def first_pass( commands ):
     num_frames = 1
     basename = ""
+    shading_mode = "flat"
+    ambient = (20,20,20)
     hasvary = False
     
     for command in commands:
@@ -85,6 +87,10 @@ def first_pass( commands ):
             basename = command[1]
         elif command[0] == "vary":
             hasvary = True
+        elif command[0] == "shading":
+            shading_mode = command[1]
+        elif command[0] == "ambient":
+            ambient = (command[1],command[2],command[3])
 
     if hasvary and num_frames == 1:
         print "MDL ERROR: Found 'vary' but not 'frames'"
@@ -96,7 +102,7 @@ def first_pass( commands ):
         print "INFO: Settings basename to 'anim'"
         basename = "anim"
             
-    return (num_frames,basename)
+    return (num_frames,basename,shading_mode,ambient)
 
 """======== second_pass( commands ) ==========
 
@@ -142,19 +148,28 @@ def run(filename):
         print "Parsing failed."
         return
 
-    num_frames,basename = first_pass(commands)
+    num_frames,basename,shading_mode,ambient = first_pass(commands)
     frames = second_pass(commands,num_frames)
 
+    lights = []
+    for s in symbols:
+        if s[0] == 'light': lights.append(s[1])
+
+    env = {}
+    env["shading_mode"] = shading_mode
+    env["ambient"] = ambient
+    env["lights"] = lights
+    
     if num_frames > 1 and not os.path.exists("anim"):
         os.makedirs("anim")
-    
+
     for frame,i in zip(frames,range(len(frames))):
         print i,frame
-        screen = run_frame(commands,frame)
+        screen = run_frame(commands,frame,env)
         if num_frames > 1:
             save_ppm(screen, "anim/"+basename+("%03d"%i)+".ppm")
         
-def run_frame(commands,frame):
+def run_frame(commands,frame,env):
     clear_zbuffer()
     color = [255, 255, 255]
     tmp = new_matrix()
@@ -216,7 +231,7 @@ def run_frame(commands,frame):
             #if command[7]:
             #    pass
             polymat = matrix_mult(stack[-1], polymat)
-            draw_polygons(polymat, screen, color)
+            draw_polygons(polymat, screen, env)
 
         elif command[0] == "sphere":
             polymat = []
@@ -226,7 +241,7 @@ def run_frame(commands,frame):
             #if command[5]:
             #    pass
             polymat = matrix_mult(stack[-1], polymat)
-            draw_polygons(polymat, screen, color)
+            draw_polygons(polymat, screen, env)
 
         elif command[0] == "torus":
             polymat = []
@@ -236,7 +251,7 @@ def run_frame(commands,frame):
             #if command[6]:
             #    pass
             polymat = matrix_mult(stack[-1], polymat)
-            draw_polygons(polymat, screen, color)
+            draw_polygons(polymat, screen, env)
 
         elif command[0] == "line":
             linemat = []
@@ -256,6 +271,9 @@ def run_frame(commands,frame):
             display(screen)
 
         elif command[0] in ["vary","basename","frames"]:
+            pass
+
+        elif command[0] in ["shading","ambient","light"]:
             pass
 
         else:

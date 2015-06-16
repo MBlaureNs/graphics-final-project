@@ -90,7 +90,6 @@ reserved = {
 
 t_ignore = " \t"
 
-
 def t_STRING(t):
     r"""\.[a-zA-Z_0-9]*[a-zA-Z_][a-zA-Z_0-9]*|
         [a-zA-Z_][a-zA-Z_0-9\.]*\.[a-zA-Z_0-9\.]*"""
@@ -131,6 +130,19 @@ def p_stuff(p):
     """stuff : 
             | statement stuff"""
     pass
+
+def p_statement_shading(p):
+    'statement : SHADING SHADING_TYPE'
+    commands.append(p[1:])
+
+def p_statement_light(p):
+    'statement : LIGHT INT INT INT NUMBER NUMBER NUMBER'
+    commands.append(p[1:])
+    symbols.append(('light', tuple(p[2:])))
+
+def p_statement_ambient(p):
+    'statement : AMBIENT INT INT INT'
+    commands.append(p[1:])
 
 def p_statement_comment(p):
     'statement : COMMENT'
