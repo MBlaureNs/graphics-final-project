@@ -2,7 +2,7 @@ from display import *
 from matrix import *
 from vector import *
 import math
-
+import random
 
 def add_polygon( points, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point( points, x0, y0, z0 )
@@ -20,6 +20,7 @@ def draw_polygons( points, screen, color ):
     def sortaequal(a,b,tol):
         return not abs(a-b)<tol
     def scanlines(p0,p1,p2):
+        colortmp = random.sample(xrange(255),3)
         pts = sorted( (p0,p1,p2), key=lambda pt: pt[1])
         top = pts[0]; mid = pts[1]; bot = pts[2]
 
@@ -47,12 +48,12 @@ def draw_polygons( points, screen, color ):
             print mid[1]
             print xi0,yi,"!!",xi1,yi
             print "drawing"
-            draw_line(screen, xi0,yi, xi1,yi, color)
+            draw_line(screen, xi0,yi, xi1,yi, colortmp)
         while yi < bot[1]:
             xi0 += dx0
             xi1 += dx1b
             yi  += 1
-            draw_line(screen, xi0,yi, xi1,yi, color)
+            draw_line(screen, xi0,yi, xi1,yi, colortmp)
 
     def draw_polygon(p0,p1,p2):
         draw_line(screen, p0[0], p0[1], p1[0], p1[1], color)
