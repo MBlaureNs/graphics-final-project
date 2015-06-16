@@ -25,20 +25,12 @@ def draw_polygons( points, screen, color ):
         pts = sorted( (p0,p1,p2), key=lambda pt: pt[1])
         top = pts[0]; mid = pts[1]; bot = pts[2]
 
-        #YO
-        #take into account when top/mid or mid/bot are same y coordinate
-        #also, the edge case for drawing torus polygons appears to have
-        #    vertices drawn in the wrong order
         dx0  = (bot[0]-top[0])/(bot[1]-top[1]) \
                if not sortaequal(bot[1],top[1],0.001) else 0
         dx1m = (mid[0]-top[0])/(mid[1]-top[1]) \
                if not sortaequal(mid[1],top[1],0.001) else 0
         dx1b = (bot[0]-mid[0])/(bot[1]-mid[1]) \
                if not sortaequal(bot[1],mid[1],0.001) else 0
-
-        #print int(p0[0]),int(p0[1]),int(p0[2]),"x", \
-        #    int(p1[0]),int(p1[1]),int(p1[2]),"x", \
-        #    int(p2[0]),int(p2[1]),int(p2[2])
 
         if sortaequal(top[1],mid[1],1):
             yi = bot[1]
