@@ -200,7 +200,7 @@ def add_torus(points,cx,cy,cz,r1,r2,step):
             phi = 2 * math.pi * tj
             x = (r1*math.cos(theta) + r2) * math.cos(phi) + cx
             y = r1*math.sin(theta) + cy
-            z = -1 * (r1*math.cos(theta) + r2) * math.sin(phi) + cz
+            z = (r1*math.cos(theta) + r2) * math.sin(phi) + cz
             spts += [[x,y,z]]
             j+=1
         i+=1
@@ -298,43 +298,36 @@ def draw_point(screen, color, x,y,z):
 def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
     dx = x1 - x0
     dy = y1 - y0
-    if dy!=0:
-        dzy = (z1 - z0) / dy
-    else: 
-        dzy = 0
-    if dx!=0:
-        dzx = (z1 - z0) / dx
-    else: 
-        dzx = 0
+    dz = z1 - z0
+    
     if dx + dy < 0:
         dx = 0 - dx
         dy = 0 - dy
-        dzx = 0 - dzx
-        dzy = 0 - dzy
+        dz = 0 - dz
         tmp = x0
         x0 = x1
         x1 = tmp
         tmp = y0
         y0 = y1
         y1 = tmp
-        tmp = z0
-        z0 = z1
-        z1 = tmp
+        
+    dzy = dz/dy if dy!=0 else 0
+    dzx = dz/dx if dx!=0 else 0
     
     if dx == 0:
         y = y0
         z = z0
         while y <= y1:
             draw_point(screen,color,  x0,y,z)
-            y = y + 1
-            z = z + dzy
+            y += 1
+            z += dzy
     elif dy == 0:
         x = x0
         z = z0
         while x <= x1:
             draw_point(screen,color, x,y0,z)
-            x = x + 1
-            z = z + dzx
+            x += 1
+            z += dzx
     elif dy < 0:
         d = 0
         x = x0
@@ -343,11 +336,11 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
         while x <= x1:
             draw_point(screen,color, x,y,z)
             if d > 0:
-                y = y - 1
-                d = d - dx
-            x = x + 1
-            d = d - dy
-            z = z + dzx
+                y -= 1
+                d -= dx
+            x += 1
+            z += dzx
+            d -= dy
     elif dx < 0:
         d = 0
         x = x0
@@ -356,11 +349,11 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
         while y <= y1:
             draw_point(screen,color, x,y,z)
             if d > 0:
-                x = x - 1
-                d = d - dy
-            y = y + 1
-            d = d - dx
-            z = z + dzy
+                x -= 1
+                d -= dy
+            y += 1
+            z += dzy
+            d -= dx
     elif dx > dy:
         d = 0
         x = x0
@@ -369,11 +362,11 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
         while x <= x1:
             draw_point(screen,color, x,y,z)
             if d > 0:
-                y = y + 1
-                d = d - dx
-            x = x + 1
-            d = d + dy
-            z = z + dzx
+                y += 1
+                d -= dx
+            x += 1
+            z += dzx
+            d += dy
     else:
         d = 0
         x = x0
@@ -382,9 +375,9 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
         while y <= y1:
             draw_point(screen,color, x,y,z)
             if d > 0:
-                x = x + 1
-                d = d - dy
-            y = y + 1
-            d = d + dx
-            z = z + dzy
+                x += 1
+                d -= dy
+            y += 1
+            z += dzy
+            d += dx
 
