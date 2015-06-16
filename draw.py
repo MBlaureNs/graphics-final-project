@@ -18,42 +18,64 @@ def add_polygon_p(points, p0, p1, p2):
 
 def draw_polygons( points, screen, color ):
     def sortaequal(a,b,tol):
-        return not abs(a-b)<tol
+        return abs(a-b)<tol
     def scanlines(p0,p1,p2):
         colortmp = random.sample(xrange(255),3)
+        colortmp = [100,100,100]
         pts = sorted( (p0,p1,p2), key=lambda pt: pt[1])
         top = pts[0]; mid = pts[1]; bot = pts[2]
-
-        yi = top[1]
-        xi0 = top[0]
-        xi1 = top[0]
 
         #YO
         #take into account when top/mid or mid/bot are same y coordinate
         #also, the edge case for drawing torus polygons appears to have
         #    vertices drawn in the wrong order
         dx0  = (bot[0]-top[0])/(bot[1]-top[1]) \
-               if sortaequal(bot[1],top[1],0.00001) else 1
+               if not sortaequal(bot[1],top[1],0.00001) else 1
         dx1m = (mid[0]-top[0])/(mid[1]-top[1]) \
-               if sortaequal(mid[1],top[1],0.00001) else 1
+               if not sortaequal(mid[1],top[1],0.00001) else 1
         dx1b = (bot[0]-mid[0])/(bot[1]-mid[1]) \
-               if sortaequal(bot[1],mid[1],0.00001) else 1
+               if not sortaequal(bot[1],mid[1],0.00001) else 1
 
-        while yi < mid[1]:
-            debug = False
-            if abs(yi-mid[1])<0.1: debug = True
-            xi0 += dx0
-            xi1 += dx1m
-            yi  += 1
-            print mid[1]
-            print xi0,yi,"!!",xi1,yi
-            print "drawing"
-            draw_line(screen, xi0,yi, xi1,yi, colortmp)
-        while yi < bot[1]:
-            xi0 += dx0
-            xi1 += dx1b
-            yi  += 1
-            draw_line(screen, xi0,yi, xi1,yi, colortmp)
+        print int(p0[0]),int(p0[1]),int(p0[2]),"x", \
+            int(p1[0]),int(p1[1]),int(p1[2]),"x", \
+            int(p2[0]),int(p2[1]),int(p2[2])
+
+        if sortaequal(top[1],mid[1],0.00001):
+            print 'topmid'
+            yi = bot[1]
+            xi0 = bot[0]
+            xi1 = bot[0]
+            while yi > mid[1]:
+                xi0 -= dx0
+                xi1 -= dx1b
+                yi  -= 1
+                draw_line(screen, xi0,yi, xi1,yi, colortmp)
+        elif sortaequal(mid[1],bot[1],0.00001):
+            print 'midbot'
+            yi = top[1]
+            xi0 = top[0]
+            xi1 = top[0]
+            while yi < mid[1]:
+                xi0 += dx0
+                xi1 += dx1m
+                yi  += 1
+                draw_line(screen, xi0,yi, xi1,yi, colortmp)
+        else:           
+            print "lmoa"
+            yi = top[1]
+            xi0 = top[0]
+            xi1 = top[0]
+            while yi < mid[1]:
+                xi0 += dx0
+                xi1 += dx1m
+                yi  += 1
+                draw_line(screen, xi0,yi, xi1,yi, colortmp)
+            while yi < bot[1]:
+                xi0 += dx0
+                xi1 += dx1b
+                yi  += 1
+                draw_line(screen, xi0,yi, xi1,yi, colortmp)
+
 
     def draw_polygon(p0,p1,p2):
         draw_line(screen, p0[0], p0[1], p1[0], p1[1], color)
@@ -84,11 +106,11 @@ def add_prism(points,x,y,z,w,h,d):
         add_polygon(points, x0,y0,z0,  x1,y1,z1,  x2,y2,z2)
         add_polygon(points, x0,y0,z0,  x2,y2,z2,  x3,y3,z3)
     add_f(x  ,y  ,z  ,  x+w,y  ,z  ,  x+w,y+h,z  ,  x  ,y+h,z  )#F
-    add_f(x  ,y  ,z+d,  x  ,y  ,z  ,  x  ,y+h,z  ,  x  ,y+h,z+d)#L
-    add_f(x+w,y  ,z+d,  x  ,y  ,z+d,  x  ,y+h,z+d,  x+w,y+h,z+d)#B
-    add_f(x+w,y  ,z  ,  x+w,y  ,z+d,  x+w,y+h,z+d,  x+w,y+h,z  )#R
-    add_f(x  ,y  ,z+d,  x+w,y  ,z+d,  x+w,y  ,z  ,  x  ,y  ,z  )#U
-    add_f(x  ,y+h,z+d  ,x  ,y+h,z  ,  x+w,y+h,z  ,  x+w,y+h,z+d)#D
+    #add_f(x  ,y  ,z+d,  x  ,y  ,z  ,  x  ,y+h,z  ,  x  ,y+h,z+d)#L
+    #add_f(x+w,y  ,z+d,  x  ,y  ,z+d,  x  ,y+h,z+d,  x+w,y+h,z+d)#B
+    #add_f(x+w,y  ,z  ,  x+w,y  ,z+d,  x+w,y+h,z+d,  x+w,y+h,z  )#R
+    #add_f(x  ,y  ,z+d,  x+w,y  ,z+d,  x+w,y  ,z  ,  x  ,y  ,z  )#U
+    #add_f(x  ,y+h,z+d  ,x  ,y+h,z  ,  x+w,y+h,z  ,  x+w,y+h,z+d)#D
 
 def add_sphere(points,cx,cy,cz,r,step):
     spts = []
