@@ -148,6 +148,8 @@ def run(filename):
     if num_frames > 1 and not os.path.exists("anim"):
         os.makedirs("anim")
 
+    print frames
+    
     for frame,i in zip(frames,range(len(frames))):
         print i,frame
         screen = run_frame(commands,frame)
@@ -174,7 +176,7 @@ def run_frame(commands,frame):
         elif command[0] == "move":
             dx,dy,dz = command[1],command[2],command[3]
             knob = command[4]
-            if knob:
+            if knob and knob in frame:
                 dx *= frame[knob]
                 dy *= frame[knob]
                 dz *= frame[knob]
@@ -185,7 +187,7 @@ def run_frame(commands,frame):
             rmat = new_matrix(4,4)
             deg = command[2]
             knob = command[3]
-            if knob:
+            if knob and knob in frame:
                 deg *= frame[knob]
             if command[1] == "x":
                 rmat = make_rotX(deg)
@@ -201,7 +203,7 @@ def run_frame(commands,frame):
         elif command[0] == "scale":
             sx,sy,sz = command[1],command[2],command[3]
             knob = command[4]
-            if knob:
+            if knob and knob in frame:
                 sx *= frame[knob]
                 sy *= frame[knob]
                 sz *= frame[knob]
