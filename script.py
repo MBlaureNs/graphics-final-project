@@ -54,6 +54,8 @@ from display import *
 from matrix import *
 from draw import *
 
+
+
 """======== first_pass( commands, symbols ) ==========
 
   Checks the commands array for any animation commands
@@ -153,6 +155,7 @@ def run(filename):
             save_ppm(screen, "anim/"+basename+("%03d"%i)+".ppm")
         
 def run_frame(commands,frame):
+    clear_zbuffer()
     color = [255, 255, 255]
     tmp = new_matrix()
     tmp = ident( tmp )
@@ -229,7 +232,7 @@ def run_frame(commands,frame):
             polymat = []
             add_torus(polymat,
                       command[1],command[2],command[3],
-                      command[4],command[5],12)
+                      command[4],command[5],20)
             #if command[6]:
             #    pass
             polymat = matrix_mult(stack[-1], polymat)

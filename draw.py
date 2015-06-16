@@ -1,27 +1,45 @@
 from display import *
 from matrix import *
 from vector import *
+from sys import maxint
 import math
 import random
 
-def add_polygon( points, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
+zbuffer = [[-5000 for x in range(500)] for x in range(500)] 
+def clear_zbuffer():
+    global zbuffer
+    zbuffer = [[-5000 for x in range(500)] for x in range(500)] 
+
+def SameSide(p1,p2, a,b):
+    cp1 = cross_prod(vect_minus(b,a), vect_minus(p1,a))
+    cp2 = cross_prod(vect_minus(b,a), vect_minus(p2,a))
+    if (dot_prod(cp1, cp2) >= 0):
+        return True
+    else:
+        return False
+
+def PointInTriangle(p, a,b,c):
+    if ((SameSide(p,a, b,c) and SameSide(p,b, a,c)) and SameSide(p,c, a,b)):
+        return True
+    else:
+        return False
+
+def add_polygon( points, x0, y0, z0, x1, y1, z1, x2, y2, z2):
     add_point( points, x0, y0, z0 )
     add_point( points, x1, y1, z1 )
     add_point( points, x2, y2, z2 )
-    
+   
 def add_polygon_p(points, p0, p1, p2):
     add_polygon(points, 
                 p0[0], p0[1], p0[2],
                 p1[0], p1[1], p1[2],
                 p2[0], p2[1], p2[2])
-    #add to z-buffer here???
 
-def draw_polygons( points, screen, color ):
+def draw_polygons(points, screen, color):
     def sortaequal(a,b,tol):
         return abs(a-b)<tol
     def scanlines(p0,p1,p2):
         colortmp = random.sample(xrange(255),3)
-        colortmp = [100,100,100]
         pts = sorted( (p0,p1,p2), key=lambda pt: pt[1])
         top = pts[0]; mid = pts[1]; bot = pts[2]
 
@@ -31,45 +49,65 @@ def draw_polygons( points, screen, color ):
                if not sortaequal(mid[1],top[1],0.001) else 0
         dx1b = (bot[0]-mid[0])/(bot[1]-mid[1]) \
                if not sortaequal(bot[1],mid[1],0.001) else 0
+        
+        dz0  = (bot[2]-top[2])/(bot[1]-top[1]) \
+               if not sortaequal(bot[1],top[1],0.001) else 0
+        dz1m = (mid[2]-top[2])/(mid[1]-top[1]) \
+               if not sortaequal(mid[1],top[1],0.001) else 0
+        dz1b = (bot[2]-mid[2])/(bot[1]-mid[1]) \
+               if not sortaequal(bot[1],mid[1],0.001) else 0
 
         if sortaequal(top[1],mid[1],1):
-            yi = bot[1]
+            zi0 = bot[2]
+            zi1 = bot[2]
+            yi  = bot[1]
             xi0 = bot[0]
             xi1 = bot[0]
             while yi > mid[1]:
                 xi0 -= dx0
                 xi1 -= dx1b
                 yi  -= 1
-                draw_line(screen, xi0,yi, xi1,yi, colortmp)
+                zi0 -= dz0
+                zi1 -= dz1b
+                draw_line(screen, xi0,yi,zi0, xi1,yi,zi1, colortmp)
         elif sortaequal(mid[1],bot[1],1):
-            yi = top[1]
+            zi0 = top[2]
+            zi1 = top[2]
+            yi  = top[1]
             xi0 = top[0]
             xi1 = top[0]
             while yi < mid[1]:
                 xi0 += dx0
                 xi1 += dx1m
                 yi  += 1
-                draw_line(screen, xi0,yi, xi1,yi, colortmp)
-        else:           
-            yi = top[1]
+                zi0 += dz0
+                zi1 += dz1m
+                draw_line(screen, xi0,yi,zi0, xi1,yi,zi1, colortmp)
+        else:    
+            zi0 = top[2]
+            zi1 = top[2]       
+            yi  = top[1]
             xi0 = top[0]
             xi1 = top[0]
             while yi < mid[1]:
                 xi0 += dx0
                 xi1 += dx1m
                 yi  += 1
-                draw_line(screen, xi0,yi, xi1,yi, colortmp)
+                zi0 += dz0
+                zi1 += dz1m
+                draw_line(screen, xi0,yi,zi0, xi1,yi,zi1, colortmp)
             while yi < bot[1]:
                 xi0 += dx0
                 xi1 += dx1b
                 yi  += 1
-                draw_line(screen, xi0,yi, xi1,yi, colortmp)
+                zi0 += dz0
+                zi1 += dz1b
+                draw_line(screen, xi0,yi,zi0, xi1,yi,zi1, colortmp)
 
-
-    def draw_polygon(p0,p1,p2):
-        draw_line(screen, p0[0], p0[1], p1[0], p1[1], color)
-        draw_line(screen, p1[0], p1[1], p2[0], p2[1], color)
-        draw_line(screen, p2[0], p2[1], p0[0], p0[1], color)
+    def draw_polygon(p0,p1,p2, c):
+        #draw_line(screen, p0[0],p0[1],p0[2], p1[0],p1[1],p1[1], c)
+        #draw_line(screen, p1[0],p1[1],p1[2], p2[0],p2[1],p2[2], c)
+        #draw_line(screen, p2[0],p2[1],p2[2], p0[0],p0[1],p0[2], c)
         scanlines(p0,p1,p2)
 
     view_vect = [0, 0, -1]
@@ -84,10 +122,36 @@ def draw_polygons( points, screen, color ):
         p2 = points[p+2]
         surf_norm = cross_prod(vect_minus(p1,p0),vect_minus(p2,p0))
 
+        def front(a, b, c):
+            #if c >= (z[int(a)][int(b)]):
+            #    print 'front'
+            #else:
+            #    print "back"
+            print "front"
+            print c
+            print zbuffer[int(a)][int(b)]
+            print c >= (zbuffer[int(a)][int(b)])
+            return c >= (zbuffer[int(a)][int(b)])
+        
+        red = [255, 0, 0]
         #add z-buffer check here????
         if dot_prod(surf_norm, view_vect) < 0:
-            draw_polygon(points[p], points[p+1], points[p+2])
+            if (front (p0[0], p0[1], p0[2]) and front (p1[0], p1[1], p1[2])) and front (p2[0], p2[1], p2[2]):
+                draw_polygon(points[p], points[p+1], points[p+2], red)
+                #pass
+            else:
+                draw_polygon(points[p], points[p+1], points[p+2], color)
+
         p+=3
+
+    #print "tesT"
+    #print z[40][40]
+    for i in range (0, 500, 10):
+        s = ""
+        for k in range (0, 500, 10):
+            s = s + "\t " + str(int(zbuffer[i][k]))
+        print s + "\n"
+    #new_z()
         
 
 def add_prism(points,x,y,z,w,h,d):
@@ -239,72 +303,99 @@ def add_edge( matrix, x0, y0, z0, x1, y1, z1 ):
 def add_point( matrix, x, y, z=0 ):
     matrix.append( [x, y, z, 1] )
 
+def draw_point(screen, color, x,y,z):
+    x = int(x)
+    y = int(y)
+    if x >= len(zbuffer) or y>= len(zbuffer[0]) or x<0 or y<0: return
+    if z > zbuffer[x][y]:
+        zbuffer[x][y] = z
+        plot(screen, color, x, y)
 
-def draw_line( screen, x0, y0, x1, y1, color ):
+def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
     dx = x1 - x0
     dy = y1 - y0
+    if dy!=0:
+        dz = (z1 - z0) / dy
+    else: 
+        dz = 0
     if dx + dy < 0:
         dx = 0 - dx
         dy = 0 - dy
+        dz = 0 - dz
         tmp = x0
         x0 = x1
         x1 = tmp
         tmp = y0
         y0 = y1
         y1 = tmp
+        tmp = z0
+        z0 = z1
+        z1 = tmp
     
     if dx == 0:
         y = y0
+        z = z0
         while y <= y1:
-            plot(screen, color,  x0, y)
+            draw_point(screen,color,  x0,y,z)
             y = y + 1
+            z = z + dz
     elif dy == 0:
         x = x0
+        z = z0
         while x <= x1:
-            plot(screen, color, x, y0)
+            draw_point(screen,color, x,y0,z)
             x = x + 1
+            z = z + dz
     elif dy < 0:
         d = 0
         x = x0
         y = y0
+        z = z0
         while x <= x1:
-            plot(screen, color, x, y)
+            draw_point(screen,color, x,y,z)
             if d > 0:
                 y = y - 1
                 d = d - dx
             x = x + 1
             d = d - dy
+            z = z + dz
     elif dx < 0:
         d = 0
         x = x0
         y = y0
+        z = z0
         while y <= y1:
-            plot(screen, color, x, y)
+            draw_point(screen,color, x,y,z)
             if d > 0:
                 x = x - 1
                 d = d - dy
             y = y + 1
             d = d - dx
+            z = z + dz
     elif dx > dy:
         d = 0
         x = x0
         y = y0
+        z = z0
         while x <= x1:
-            plot(screen, color, x, y)
+            draw_point(screen,color, x,y,z)
             if d > 0:
                 y = y + 1
                 d = d - dx
             x = x + 1
             d = d + dy
+            z = z + dz
     else:
         d = 0
         x = x0
         y = y0
+        z = z0
         while y <= y1:
-            plot(screen, color, x, y)
+            draw_point(screen,color, x,y,z)
             if d > 0:
                 x = x + 1
                 d = d - dy
             y = y + 1
             d = d + dx
+            z = z + dz
 
