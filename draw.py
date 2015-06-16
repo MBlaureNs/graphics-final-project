@@ -167,8 +167,8 @@ def add_torus(points,cx,cy,cz,r1,r2,step):
         j=1.0
         
     #connect points
-    i = 0
-    while i < len(spts)-step-step:
+    i = -step
+    while i < len(spts)-step:
         a = (i)        % len(spts)
         b = (i+step)   % len(spts)
         c = (i+1)      % len(spts)
