@@ -35,7 +35,8 @@ def draw_polygons( points, screen, color ):
         sn = 15
         #sn is the specular refleciton exponent, also object specific
 
-        specular_r_vector = vect_minus((2 * surf_norm * dot_prod(surf_norm, vector_l)), vector_l)
+        norm_x_vect = cross_prod(surf_norm, vector_l)
+        specular_r_vector = vect_minus(scalar_prod(2, cross_prod(surf_norm, norm_x_vect)), vector_l)
         
         ia = [0,204,204]
         colortmp = []
@@ -47,8 +48,7 @@ def draw_polygons( points, screen, color ):
             specular = ks[i] * (dot_prod(specular_r_vector, vect_minus([0,0,-1],center))) ** sn
             colortmp.append(ambient + diffuse + specular)
             
-
-
+        colortmp = [100, 100, 100]
         pts = sorted( (p0,p1,p2), key=lambda pt: pt[1])
         top = pts[0]; mid = pts[1]; bot = pts[2]
 
