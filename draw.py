@@ -25,28 +25,39 @@ def draw_polygons(points, screen, env):
     color = [100,100,100] #placeholder
     def sortaequal(a,b,tol):
         return abs(a-b)<tol
-    def light(x,y,z,ka,kd): #placeholder
-        colortmp = []
+    def light(x,y,z,ka,kd,ks): #placeholder
+        colortmp = [0,0,0]
         ia = env["ambient"]
         for i in range(3):
             ambient = ka[i] * ia[i]
+            colortmp[i] += ambient
             for light in env["lights"]:
                 vector_l = vect_minus(light[3:],p0)
+                n_surf_norm = normalize(surf_norm)
+                n_vector_l = normalize(vector_l)
+                
                 diffuse = kd[i] * light[i] * \
-                          max(0, dot_prod(normalize(surf_norm), 
-                                          normalize(vector_l)))
-                #print kd[i], light[i], dot_prod(normalize(surf_norm), normalize(vector_l))
-            #specular = ks[i] * (dot_prod(specular_r_vector, vect_minus([0,0,-1],center))) ** sn
-            
-            colortmp.append(int(round(ambient+diffuse)))
-        print colortmp
+                          max(0, dot_prod(n_surf_norm, 
+                                          n_vector_l))
+
+                n_x_vect = cross_prod(n_surf_norm, n_vector_l)
+                specular_r_vec = normalize(vect_minus(scalar_prod(2,n_x_vect),n_vector_l))
+                view_vec = normalize(vect_minus(p0,[0,0,-1]))
+                
+                specular = ks[i] * light[i] * \
+                           max(0, dot_prod(specular_r_vec,
+                                           view_vec)) ** 15
+
+                colortmp[i] += diffuse+specular
+                colortmp[i] = int(min(colortmp[i],255))
         return colortmp
             
     def scanlines(p0,p1,p2):
         if env["shading_mode"] == "flat":
             colortmp = light(p0[0],p0[1],p0[2],
                              (0.8,0.8,0.8), #k-ambient
-                             (0.8,0.8,0.8)  #k-diffuse
+                             (0.8,0.8,0.8), #k-diffuse
+                             (0.8,0.8,0.8)  #k-specular
                             )
         else:
             colortmp = random.sample(xrange(255),3)

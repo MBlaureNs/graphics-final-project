@@ -1,8 +1,9 @@
 frames 50
 basename on
 shading flat
-light 230 180 180 0 0 0
-ambient 20 20 20
+light 230 100 30 300 -50 0
+light 150 150 0 50 550 100
+ambient 40 40 100
 
 push
 rotate y 333

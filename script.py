@@ -237,7 +237,7 @@ def run_frame(commands,frame,env):
             polymat = []
             add_sphere(polymat,
                        command[1],command[2],command[3],
-                       command[4],12)
+                       command[4],36)
             #if command[5]:
             #    pass
             polymat = matrix_mult(stack[-1], polymat)
@@ -247,7 +247,7 @@ def run_frame(commands,frame,env):
             polymat = []
             add_torus(polymat,
                       command[1],command[2],command[3],
-                      command[4],command[5],20)
+                      command[4],command[5],50)
             #if command[6]:
             #    pass
             polymat = matrix_mult(stack[-1], polymat)
