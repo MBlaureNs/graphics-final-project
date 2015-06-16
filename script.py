@@ -147,8 +147,6 @@ def run(filename):
 
     if num_frames > 1 and not os.path.exists("anim"):
         os.makedirs("anim")
-
-    print frames
     
     for frame,i in zip(frames,range(len(frames))):
         print i,frame
