@@ -155,7 +155,7 @@ def run(filename):
             save_ppm(screen, "anim/"+basename+("%03d"%i)+".ppm")
         
 def run_frame(commands,frame):
-    
+    clear_zbuffer()
     color = [255, 255, 255]
     tmp = new_matrix()
     tmp = ident( tmp )

@@ -3,11 +3,12 @@ from matrix import *
 from vector import *
 from sys import maxint
 import math
+import random
 
-z = [[-500  for x in range(500)] for x in range(500)] 
-#def new_z():
-#    z = [[-500 for x in range(500)] for x in range(500)] 
-
+zbuffer = [[-5000 for x in range(500)] for x in range(500)] 
+def clear_zbuffer():
+    global zbuffer
+    zbuffer = [[-5000 for x in range(500)] for x in range(500)] 
 
 def SameSide(p1,p2, a,b):
     cp1 = cross_prod(vect_minus(b,a), vect_minus(p1,a))
@@ -27,49 +28,6 @@ def add_polygon( points, x0, y0, z0, x1, y1, z1, x2, y2, z2):
     add_point( points, x0, y0, z0 )
     add_point( points, x1, y1, z1 )
     add_point( points, x2, y2, z2 )
-
-    p0 = [x0, y0, z0]
-    p1 = [x1, y1, z1]
-    p2 = [x2, y2, z2]
-    
-    zn = (p0[2] + p1[2] + p2[2]) / 3
-   
-    def z_buff(a, b, c):
-        #print "dfgdsf"
-        
-        #print "a"
-        #print a
-        #print int(a)
-        #print c
-        #print z[int(a)][int(b)]
-        if (z[int(a)][int(b)] < c):
-            #print "change"
-            #print "old"
-            #print z[int(a)][int(b)]
-            z[int(a)][int(b)] = c
-            #print "new"
-            #print z[int(a)][int(b)]
-
-    
-    for x in range ( int (min ([p0[0], p1[0], p2[0]])), (int (max ([p0[0], p1[0], p2[0]])))):
-        for y in range ( int (min ([p0[1], p1[1], p2[1]])), (int (max ([p0[1], p1[1], p2[1]])))):
-    #        p = [x, y, zn]
-    #        if PointInTriangle(p, p0, p1, p2):
-            z_buff(x, y, zn)
-                #print "x"
-                #print x
-                #print "y"
-                #print y
-            
-    z_buff (x0, y0, z0)
-    z_buff (x1, y1, z1)
-    z_buff (x2, y2, z2)
-    
-    #print "called"
-    #print p0
-    #print p1
-    #print p2
-    #add to z-buffer here???
    
 def add_polygon_p(points, p0, p1, p2):
     add_polygon(points, 
@@ -77,52 +35,80 @@ def add_polygon_p(points, p0, p1, p2):
                 p1[0], p1[1], p1[2],
                 p2[0], p2[1], p2[2])
 
-    
-
 def draw_polygons(points, screen, color):
-    
     def sortaequal(a,b,tol):
-        return not abs(a-b)<tol
+        return abs(a-b)<tol
     def scanlines(p0,p1,p2):
+        colortmp = random.sample(xrange(255),3)
         pts = sorted( (p0,p1,p2), key=lambda pt: pt[1])
         top = pts[0]; mid = pts[1]; bot = pts[2]
 
-        yi = top[1]
-        xi0 = top[0]
-        xi1 = top[0]
-
-        #YO
-        #take into account when top/mid or mid/bot are same y coordinate
-        #also, the edge case for drawing torus polygons appears to have
-        #    vertices drawn in the wrong order
         dx0  = (bot[0]-top[0])/(bot[1]-top[1]) \
-               if sortaequal(bot[1],top[1],0.00001) else 1
+               if not sortaequal(bot[1],top[1],0.001) else 0
         dx1m = (mid[0]-top[0])/(mid[1]-top[1]) \
-               if sortaequal(mid[1],top[1],0.00001) else 1
+               if not sortaequal(mid[1],top[1],0.001) else 0
         dx1b = (bot[0]-mid[0])/(bot[1]-mid[1]) \
-               if sortaequal(bot[1],mid[1],0.00001) else 1
+               if not sortaequal(bot[1],mid[1],0.001) else 0
+        
+        dz0  = (bot[2]-top[2])/(bot[1]-top[1]) \
+               if not sortaequal(bot[1],top[1],0.001) else 0
+        dz1m = (mid[2]-top[2])/(mid[1]-top[1]) \
+               if not sortaequal(mid[1],top[1],0.001) else 0
+        dz1b = (bot[2]-mid[2])/(bot[1]-mid[1]) \
+               if not sortaequal(bot[1],mid[1],0.001) else 0
 
-        while yi < mid[1]:
-            debug = False
-            if abs(yi-mid[1])<0.1: debug = True
-            xi0 += dx0
-            xi1 += dx1m
-            yi  += 1
-            print mid[1]
-            print xi0,yi,"!!",xi1,yi
-            print "drawing"
-            draw_line(screen, xi0,yi, xi1,yi, color)
-        while yi < bot[1]:
-            xi0 += dx0
-            xi1 += dx1b
-            yi  += 1
-            draw_line(screen, xi0,yi, xi1,yi, color)
+        if sortaequal(top[1],mid[1],1):
+            zi0 = bot[2]
+            zi1 = bot[2]
+            yi  = bot[1]
+            xi0 = bot[0]
+            xi1 = bot[0]
+            while yi > mid[1]:
+                xi0 -= dx0
+                xi1 -= dx1b
+                yi  -= 1
+                zi0 -= dz0
+                zi1 -= dz1b
+                draw_line(screen, xi0,yi,zi0, xi1,yi,zi1, colortmp)
+        elif sortaequal(mid[1],bot[1],1):
+            zi0 = top[2]
+            zi1 = top[2]
+            yi  = top[1]
+            xi0 = top[0]
+            xi1 = top[0]
+            while yi < mid[1]:
+                xi0 += dx0
+                xi1 += dx1m
+                yi  += 1
+                zi0 += dz0
+                zi1 += dz1m
+                draw_line(screen, xi0,yi,zi0, xi1,yi,zi1, colortmp)
+        else:    
+            zi0 = top[2]
+            zi1 = top[2]       
+            yi  = top[1]
+            xi0 = top[0]
+            xi1 = top[0]
+            while yi < mid[1]:
+                xi0 += dx0
+                xi1 += dx1m
+                yi  += 1
+                zi0 += dz0
+                zi1 += dz1m
+                draw_line(screen, xi0,yi,zi0, xi1,yi,zi1, colortmp)
+            while yi < bot[1]:
+                xi0 += dx0
+                xi1 += dx1b
+                yi  += 1
+                zi0 += dz0
+                zi1 += dz1b
+                draw_line(screen, xi0,yi,zi0, xi1,yi,zi1, colortmp)
 
     def draw_polygon(p0,p1,p2, c):
-        draw_line(screen, p0[0], p0[1], p1[0], p1[1], c)
-        draw_line(screen, p1[0], p1[1], p2[0], p2[1], c)
-        draw_line(screen, p2[0], p2[1], p0[0], p0[1], c)
-        #scanlines(p0,p1,p2)
+        #draw_line(screen, p0[0],p0[1],p0[2], p1[0],p1[1],p1[1], c)
+        #draw_line(screen, p1[0],p1[1],p1[2], p2[0],p2[1],p2[2], c)
+        #draw_line(screen, p2[0],p2[1],p2[2], p0[0],p0[1],p0[2], c)
+        scanlines(p0,p1,p2)
 
     view_vect = [0, 0, -1]
 
@@ -143,9 +129,9 @@ def draw_polygons(points, screen, color):
             #    print "back"
             print "front"
             print c
-            print z[int(a)][int(b)]
-            print c >= (z[int(a)][int(b)])
-            return c >= (z[int(a)][int(b)])
+            print zbuffer[int(a)][int(b)]
+            print c >= (zbuffer[int(a)][int(b)])
+            return c >= (zbuffer[int(a)][int(b)])
         
         red = [255, 0, 0]
         #add z-buffer check here????
@@ -163,7 +149,7 @@ def draw_polygons(points, screen, color):
     for i in range (0, 500, 10):
         s = ""
         for k in range (0, 500, 10):
-            s = s + "\t " + str(int(z[i][k]))
+            s = s + "\t " + str(int(zbuffer[i][k]))
         print s + "\n"
     #new_z()
         
@@ -220,7 +206,7 @@ def add_torus(points,cx,cy,cz,r1,r2,step):
     spts = []
 
     #generate points
-    i = 1.0
+    i = 1.0 + 1.0
     j = 1.0
     while i<=step:
         ti = i/step
@@ -237,7 +223,7 @@ def add_torus(points,cx,cy,cz,r1,r2,step):
         j=1.0
         
     #connect points
-    i = 0
+    i = -step
     while i < len(spts)-step:
         a = (i)        % len(spts)
         b = (i+step)   % len(spts)
@@ -317,72 +303,99 @@ def add_edge( matrix, x0, y0, z0, x1, y1, z1 ):
 def add_point( matrix, x, y, z=0 ):
     matrix.append( [x, y, z, 1] )
 
+def draw_point(screen, color, x,y,z):
+    x = int(x)
+    y = int(y)
+    if x >= len(zbuffer) or y>= len(zbuffer[0]) or x<0 or y<0: return
+    if z > zbuffer[x][y]:
+        zbuffer[x][y] = z
+        plot(screen, color, x, y)
 
-def draw_line( screen, x0, y0, x1, y1, color ):
+def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
     dx = x1 - x0
     dy = y1 - y0
+    if dy!=0:
+        dz = (z1 - z0) / dy
+    else: 
+        dz = 0
     if dx + dy < 0:
         dx = 0 - dx
         dy = 0 - dy
+        dz = 0 - dz
         tmp = x0
         x0 = x1
         x1 = tmp
         tmp = y0
         y0 = y1
         y1 = tmp
+        tmp = z0
+        z0 = z1
+        z1 = tmp
     
     if dx == 0:
         y = y0
+        z = z0
         while y <= y1:
-            plot(screen, color,  x0, y)
+            draw_point(screen,color,  x0,y,z)
             y = y + 1
+            z = z + dz
     elif dy == 0:
         x = x0
+        z = z0
         while x <= x1:
-            plot(screen, color, x, y0)
+            draw_point(screen,color, x,y0,z)
             x = x + 1
+            z = z + dz
     elif dy < 0:
         d = 0
         x = x0
         y = y0
+        z = z0
         while x <= x1:
-            plot(screen, color, x, y)
+            draw_point(screen,color, x,y,z)
             if d > 0:
                 y = y - 1
                 d = d - dx
             x = x + 1
             d = d - dy
+            z = z + dz
     elif dx < 0:
         d = 0
         x = x0
         y = y0
+        z = z0
         while y <= y1:
-            plot(screen, color, x, y)
+            draw_point(screen,color, x,y,z)
             if d > 0:
                 x = x - 1
                 d = d - dy
             y = y + 1
             d = d - dx
+            z = z + dz
     elif dx > dy:
         d = 0
         x = x0
         y = y0
+        z = z0
         while x <= x1:
-            plot(screen, color, x, y)
+            draw_point(screen,color, x,y,z)
             if d > 0:
                 y = y + 1
                 d = d - dx
             x = x + 1
             d = d + dy
+            z = z + dz
     else:
         d = 0
         x = x0
         y = y0
+        z = z0
         while y <= y1:
-            plot(screen, color, x, y)
+            draw_point(screen,color, x,y,z)
             if d > 0:
                 x = x + 1
                 d = d - dy
             y = y + 1
             d = d + dx
+            z = z + dz
 
