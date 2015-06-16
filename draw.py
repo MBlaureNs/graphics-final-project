@@ -103,11 +103,11 @@ def add_prism(points,x,y,z,w,h,d):
         add_polygon(points, x0,y0,z0,  x1,y1,z1,  x2,y2,z2)
         add_polygon(points, x0,y0,z0,  x2,y2,z2,  x3,y3,z3)
     add_f(x  ,y  ,z  ,  x+w,y  ,z  ,  x+w,y+h,z  ,  x  ,y+h,z  )#F
-    #add_f(x  ,y  ,z+d,  x  ,y  ,z  ,  x  ,y+h,z  ,  x  ,y+h,z+d)#L
-    #add_f(x+w,y  ,z+d,  x  ,y  ,z+d,  x  ,y+h,z+d,  x+w,y+h,z+d)#B
-    #add_f(x+w,y  ,z  ,  x+w,y  ,z+d,  x+w,y+h,z+d,  x+w,y+h,z  )#R
-    #add_f(x  ,y  ,z+d,  x+w,y  ,z+d,  x+w,y  ,z  ,  x  ,y  ,z  )#U
-    #add_f(x  ,y+h,z+d  ,x  ,y+h,z  ,  x+w,y+h,z  ,  x+w,y+h,z+d)#D
+    add_f(x  ,y  ,z+d,  x  ,y  ,z  ,  x  ,y+h,z  ,  x  ,y+h,z+d)#L
+    add_f(x+w,y  ,z+d,  x  ,y  ,z+d,  x  ,y+h,z+d,  x+w,y+h,z+d)#B
+    add_f(x+w,y  ,z  ,  x+w,y  ,z+d,  x+w,y+h,z+d,  x+w,y+h,z  )#R
+    add_f(x  ,y  ,z+d,  x+w,y  ,z+d,  x+w,y  ,z  ,  x  ,y  ,z  )#U
+    add_f(x  ,y+h,z+d  ,x  ,y+h,z  ,  x+w,y+h,z  ,  x+w,y+h,z+d)#D
 
 def add_sphere(points,cx,cy,cz,r,step):
     spts = []
@@ -168,7 +168,7 @@ def add_torus(points,cx,cy,cz,r1,r2,step):
         
     #connect points
     i = 0
-    while i < len(spts)-step:
+    while i < len(spts)-step-step:
         a = (i)        % len(spts)
         b = (i+step)   % len(spts)
         c = (i+1)      % len(spts)
