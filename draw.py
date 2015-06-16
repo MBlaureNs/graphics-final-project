@@ -53,7 +53,7 @@ def draw_polygons(points, screen, color):
         ks = [0.55, 0.25, 0.65]
         sn = 15
         #sn is the specular refleciton exponent, also object specific
-
+        
         norm_x_vect = cross_prod(surf_norm, vector_l)
         specular_r_vector = vect_minus(scalar_prod(2, cross_prod(surf_norm, norm_x_vect)), vector_l)
         
@@ -344,13 +344,18 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
     dx = x1 - x0
     dy = y1 - y0
     if dy!=0:
-        dz = (z1 - z0) / dy
+        dzy = (z1 - z0) / dy
     else: 
-        dz = 0
+        dzy = 0
+    if dx!=0:
+        dzx = (z1 - z0) / dx
+    else: 
+        dzx = 0
     if dx + dy < 0:
         dx = 0 - dx
         dy = 0 - dy
-        dz = 0 - dz
+        dzx = 0 - dzx
+        dzy = 0 - dzy
         tmp = x0
         x0 = x1
         x1 = tmp
@@ -367,14 +372,14 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
         while y <= y1:
             draw_point(screen,color,  x0,y,z)
             y = y + 1
-            z = z + dz
+            z = z + dzy
     elif dy == 0:
         x = x0
         z = z0
         while x <= x1:
             draw_point(screen,color, x,y0,z)
             x = x + 1
-            z = z + dz
+            z = z + dzx
     elif dy < 0:
         d = 0
         x = x0
@@ -387,7 +392,7 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
                 d = d - dx
             x = x + 1
             d = d - dy
-            z = z + dz
+            z = z + dzx
     elif dx < 0:
         d = 0
         x = x0
@@ -400,7 +405,7 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
                 d = d - dy
             y = y + 1
             d = d - dx
-            z = z + dz
+            z = z + dzy
     elif dx > dy:
         d = 0
         x = x0
@@ -413,7 +418,7 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
                 d = d - dx
             x = x + 1
             d = d + dy
-            z = z + dz
+            z = z + dzx
     else:
         d = 0
         x = x0
@@ -426,5 +431,5 @@ def draw_line( screen, x0, y0, z0, x1, y1, z1, color ):
                 d = d - dy
             y = y + 1
             d = d + dx
-            z = z + dz
+            z = z + dzy
 
