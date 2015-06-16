@@ -232,7 +232,7 @@ def run_frame(commands,frame):
             polymat = []
             add_torus(polymat,
                       command[1],command[2],command[3],
-                      command[4],command[5],12)
+                      command[4],command[5],20)
             #if command[6]:
             #    pass
             polymat = matrix_mult(stack[-1], polymat)

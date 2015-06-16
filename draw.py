@@ -1,48 +1,85 @@
 from display import *
 from matrix import *
 from vector import *
+from sys import maxint
 import math
 
-z = [[0 for x in range(500)] for x in range(500)] 
+z = [[-500  for x in range(500)] for x in range(500)] 
 #def new_z():
 #    z = [[-500 for x in range(500)] for x in range(500)] 
+
+
+def SameSide(p1,p2, a,b):
+    cp1 = cross_prod(vect_minus(b,a), vect_minus(p1,a))
+    cp2 = cross_prod(vect_minus(b,a), vect_minus(p2,a))
+    if (dot_prod(cp1, cp2) >= 0):
+        return True
+    else:
+        return False
+
+def PointInTriangle(p, a,b,c):
+    if ((SameSide(p,a, b,c) and SameSide(p,b, a,c)) and SameSide(p,c, a,b)):
+        return True
+    else:
+        return False
 
 def add_polygon( points, x0, y0, z0, x1, y1, z1, x2, y2, z2):
     add_point( points, x0, y0, z0 )
     add_point( points, x1, y1, z1 )
     add_point( points, x2, y2, z2 )
-    #print z0
-    #print z1
-    #print z2
+
+    p0 = [x0, y0, z0]
+    p1 = [x1, y1, z1]
+    p2 = [x2, y2, z2]
+    
+    zn = (p0[2] + p1[2] + p2[2]) / 3
+   
     def z_buff(a, b, c):
         #print "dfgdsf"
         
-        print "a"
-        print a
-        print int(a)
-        print c
-        print z[int(a)][int(b)]
-        
+        #print "a"
+        #print a
+        #print int(a)
+        #print c
+        #print z[int(a)][int(b)]
         if (z[int(a)][int(b)] < c):
-            print "change"
-            print z[int(a)][int(b)]
+            #print "change"
+            #print "old"
+            #print z[int(a)][int(b)]
             z[int(a)][int(b)] = c
-            print z[int(a)][int(b)]
+            #print "new"
+            #print z[int(a)][int(b)]
+
+    
+    for x in range ( int (min ([p0[0], p1[0], p2[0]])), (int (max ([p0[0], p1[0], p2[0]])))):
+        for y in range ( int (min ([p0[1], p1[1], p2[1]])), (int (max ([p0[1], p1[1], p2[1]])))):
+    #        p = [x, y, zn]
+    #        if PointInTriangle(p, p0, p1, p2):
+            z_buff(x, y, zn)
+                #print "x"
+                #print x
+                #print "y"
+                #print y
+            
     z_buff (x0, y0, z0)
     z_buff (x1, y1, z1)
     z_buff (x2, y2, z2)
-        
+    
+    #print "called"
+    #print p0
+    #print p1
+    #print p2
+    #add to z-buffer here???
+   
 def add_polygon_p(points, p0, p1, p2):
     add_polygon(points, 
                 p0[0], p0[1], p0[2],
                 p1[0], p1[1], p1[2],
                 p2[0], p2[1], p2[2])
-    #print p0
-    #print p1
-    #print p2
-    #add to z-buffer here???
 
-def draw_polygons( points, screen, color):
+    
+
+def draw_polygons(points, screen, color):
     
     def sortaequal(a,b,tol):
         return not abs(a-b)<tol
@@ -100,20 +137,34 @@ def draw_polygons( points, screen, color):
         surf_norm = cross_prod(vect_minus(p1,p0),vect_minus(p2,p0))
 
         def front(a, b, c):
-            print 'front'
+            #if c >= (z[int(a)][int(b)]):
+            #    print 'front'
+            #else:
+            #    print "back"
+            print "front"
             print c
             print z[int(a)][int(b)]
+            print c >= (z[int(a)][int(b)])
             return c >= (z[int(a)][int(b)])
+        
         red = [255, 0, 0]
         #add z-buffer check here????
         if dot_prod(surf_norm, view_vect) < 0:
-            if ((front (p0[0], p0[1], p0[2]) and front (p1[0], p1[1], p1[2])) and front (p2[0], p2[1], p2[2])):
+            if (front (p0[0], p0[1], p0[2]) and front (p1[0], p1[1], p1[2])) and front (p2[0], p2[1], p2[2]):
                 draw_polygon(points[p], points[p+1], points[p+2], red)
                 #pass
             else:
                 draw_polygon(points[p], points[p+1], points[p+2], color)
 
         p+=3
+
+    #print "tesT"
+    #print z[40][40]
+    for i in range (0, 500, 10):
+        s = ""
+        for k in range (0, 500, 10):
+            s = s + "\t " + str(int(z[i][k]))
+        print s + "\n"
     #new_z()
         
 
