@@ -30,18 +30,17 @@ def draw_polygons( points, screen, color ):
         #also, the edge case for drawing torus polygons appears to have
         #    vertices drawn in the wrong order
         dx0  = (bot[0]-top[0])/(bot[1]-top[1]) \
-               if not sortaequal(bot[1],top[1],0.00001) else 1
+               if not sortaequal(bot[1],top[1],0.001) else 0
         dx1m = (mid[0]-top[0])/(mid[1]-top[1]) \
-               if not sortaequal(mid[1],top[1],0.00001) else 1
+               if not sortaequal(mid[1],top[1],0.001) else 0
         dx1b = (bot[0]-mid[0])/(bot[1]-mid[1]) \
-               if not sortaequal(bot[1],mid[1],0.00001) else 1
+               if not sortaequal(bot[1],mid[1],0.001) else 0
 
-        print int(p0[0]),int(p0[1]),int(p0[2]),"x", \
-            int(p1[0]),int(p1[1]),int(p1[2]),"x", \
-            int(p2[0]),int(p2[1]),int(p2[2])
+        #print int(p0[0]),int(p0[1]),int(p0[2]),"x", \
+        #    int(p1[0]),int(p1[1]),int(p1[2]),"x", \
+        #    int(p2[0]),int(p2[1]),int(p2[2])
 
-        if sortaequal(top[1],mid[1],0.00001):
-            print 'topmid'
+        if sortaequal(top[1],mid[1],1):
             yi = bot[1]
             xi0 = bot[0]
             xi1 = bot[0]
@@ -50,8 +49,7 @@ def draw_polygons( points, screen, color ):
                 xi1 -= dx1b
                 yi  -= 1
                 draw_line(screen, xi0,yi, xi1,yi, colortmp)
-        elif sortaequal(mid[1],bot[1],0.00001):
-            print 'midbot'
+        elif sortaequal(mid[1],bot[1],1):
             yi = top[1]
             xi0 = top[0]
             xi1 = top[0]
@@ -61,7 +59,6 @@ def draw_polygons( points, screen, color ):
                 yi  += 1
                 draw_line(screen, xi0,yi, xi1,yi, colortmp)
         else:           
-            print "lmoa"
             yi = top[1]
             xi0 = top[0]
             xi1 = top[0]
@@ -153,7 +150,7 @@ def add_torus(points,cx,cy,cz,r1,r2,step):
     spts = []
 
     #generate points
-    i = 1.0
+    i = 1.0 + 1.0
     j = 1.0
     while i<=step:
         ti = i/step

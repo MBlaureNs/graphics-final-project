@@ -3,11 +3,11 @@ basename on
 
 push
 move 250 250 0
-sphere 0 0 0 100
 push
 rotate x 1080 orbity
 rotate y 360 orbity
 rotate z 540 orbity
+sphere 0 0 0 100
 torus 0 0 0 20 200
 
 vary orbity 0 49 0 1
