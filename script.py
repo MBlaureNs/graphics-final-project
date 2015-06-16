@@ -54,6 +54,8 @@ from display import *
 from matrix import *
 from draw import *
 
+
+
 """======== first_pass( commands, symbols ) ==========
 
   Checks the commands array for any animation commands
@@ -153,6 +155,7 @@ def run(filename):
             save_ppm(screen, "anim/"+basename+("%03d"%i)+".ppm")
         
 def run_frame(commands,frame):
+    
     color = [255, 255, 255]
     tmp = new_matrix()
     tmp = ident( tmp )

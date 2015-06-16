@@ -2,24 +2,48 @@ from display import *
 from matrix import *
 from vector import *
 import math
-z=[][]
 
+z = [[0 for x in range(500)] for x in range(500)] 
+#def new_z():
+#    z = [[-500 for x in range(500)] for x in range(500)] 
 
-def add_polygon( points, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
+def add_polygon( points, x0, y0, z0, x1, y1, z1, x2, y2, z2):
     add_point( points, x0, y0, z0 )
     add_point( points, x1, y1, z1 )
     add_point( points, x2, y2, z2 )
-    if (z[x0][y0] < z0):
-        z[x0][y0] = z0
-    
+    #print z0
+    #print z1
+    #print z2
+    def z_buff(a, b, c):
+        #print "dfgdsf"
+        
+        print "a"
+        print a
+        print int(a)
+        print c
+        print z[int(a)][int(b)]
+        
+        if (z[int(a)][int(b)] < c):
+            print "change"
+            print z[int(a)][int(b)]
+            z[int(a)][int(b)] = c
+            print z[int(a)][int(b)]
+    z_buff (x0, y0, z0)
+    z_buff (x1, y1, z1)
+    z_buff (x2, y2, z2)
+        
 def add_polygon_p(points, p0, p1, p2):
     add_polygon(points, 
                 p0[0], p0[1], p0[2],
                 p1[0], p1[1], p1[2],
                 p2[0], p2[1], p2[2])
+    #print p0
+    #print p1
+    #print p2
     #add to z-buffer here???
 
-def draw_polygons( points, screen, color ):
+def draw_polygons( points, screen, color):
+    
     def sortaequal(a,b,tol):
         return not abs(a-b)<tol
     def scanlines(p0,p1,p2):
@@ -57,11 +81,11 @@ def draw_polygons( points, screen, color ):
             yi  += 1
             draw_line(screen, xi0,yi, xi1,yi, color)
 
-    def draw_polygon(p0,p1,p2):
-        draw_line(screen, p0[0], p0[1], p1[0], p1[1], color)
-        draw_line(screen, p1[0], p1[1], p2[0], p2[1], color)
-        draw_line(screen, p2[0], p2[1], p0[0], p0[1], color)
-        scanlines(p0,p1,p2)
+    def draw_polygon(p0,p1,p2, c):
+        draw_line(screen, p0[0], p0[1], p1[0], p1[1], c)
+        draw_line(screen, p1[0], p1[1], p2[0], p2[1], c)
+        draw_line(screen, p2[0], p2[1], p0[0], p0[1], c)
+        #scanlines(p0,p1,p2)
 
     view_vect = [0, 0, -1]
 
@@ -75,10 +99,22 @@ def draw_polygons( points, screen, color ):
         p2 = points[p+2]
         surf_norm = cross_prod(vect_minus(p1,p0),vect_minus(p2,p0))
 
+        def front(a, b, c):
+            print 'front'
+            print c
+            print z[int(a)][int(b)]
+            return c >= (z[int(a)][int(b)])
+        red = [255, 0, 0]
         #add z-buffer check here????
         if dot_prod(surf_norm, view_vect) < 0:
-            draw_polygon(points[p], points[p+1], points[p+2])
+            if ((front (p0[0], p0[1], p0[2]) and front (p1[0], p1[1], p1[2])) and front (p2[0], p2[1], p2[2])):
+                draw_polygon(points[p], points[p+1], points[p+2], red)
+                #pass
+            else:
+                draw_polygon(points[p], points[p+1], points[p+2], color)
+
         p+=3
+    #new_z()
         
 
 def add_prism(points,x,y,z,w,h,d):
